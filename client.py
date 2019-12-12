@@ -17,3 +17,18 @@ def hash_file(path):
 
 def send_status(sock, status):
     sock.sendall(json.dumps(status))
+    response = sock.recv(1024)
+    response = json.loads(response)
+    return response
+
+def send_files(sock, requested_files):
+    for f in requested_files:
+        send_file(sock, f)
+
+def send_file(sock, filename):
+    with open(filename, "rb") as f:
+        data = f.read(1024)
+        while data:
+            sock.send(data)
+            l.read(1024)
+
