@@ -1,4 +1,5 @@
 import socket
+import time
 import json
 from client import get_directory_status
 
@@ -16,6 +17,21 @@ def changed_files(old_status, new_status):
 def removed_files(old_status, new_status):
     return list(set(old_status.keys()).difference(set(new_status.keys())))
 
+def read_until_complete(sock, chunk_size=1024, timeout=5):
+    data = sock.recv(chunk_size)
+    start_time = time.time()
+    while True:
+        try:
+            new_status = data.decode("utf-8")
+            new_status = json.loads(new_status)
+            return new_status
+        except json.decoder.JSONDecodeError:
+            if time.time() - start_time > timeout:
+                print("Timeout")
+                break
+            else:
+                data += sock.recv(chunk_size)
+
 def run(port):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         sock.bind((socket.gethostname(), port))
@@ -24,7 +40,6 @@ def run(port):
         while True:
             conn, (client_host, client_port) = sock.accept()
             print("Connection from {} on port {}".format(client_host, client_port))
-            new_status = conn.recv(2 ** 16) # TODO support larger status updates
-            new_status = json.loads(new_status.decode("utf-8"))
+            new_status = read_until_complete(conn) # TODO support larger status updates
             conn.sendall(json.dumps(changed_files(new_status, get_directory_status("."))).encode("utf-8"))
             conn.close() # TODO remove
