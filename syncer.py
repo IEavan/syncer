@@ -1,5 +1,7 @@
 import argparse
 import socket
+import client
+import server
 
 # Parse Arguments
 parser = argparse.ArgumentParser()
@@ -25,16 +27,10 @@ if args.source:
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     print("Connecting to {} on port {}".format(args.addr, args.port))
     sock.connect((args.addr, args.port))
-    sock.send(b"Hello")
+    dir_status = client.get_directory_status(".")
+    response = client.send_status(sock, dir_status)
+    print("Received response {}".format(response))
     sock.close()
 
 if args.dest:
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.bind((socket.gethostname(), args.port))
-    sock.listen(8)
-    conn, (host, port) = sock.accept()
-    print("Received connection from {} from port {}".format(host, port))
-    data = conn.recv(1024)
-    print(repr(data))
-    conn.close()
-    sock.close()
+    server.run(args.port)
