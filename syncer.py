@@ -27,10 +27,10 @@ if args.source:
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     print("Connecting to {} on port {}".format(args.addr, args.port))
     sock.connect((args.addr, args.port))
-    dir_status = client.get_directory_status(".")
+    dir_status = client.get_directory_status(args.dir)
     response = client.send_status(sock, dir_status)
     print("Received response {}".format(response))
     sock.close()
 
 if args.dest:
-    server.run(args.port)
+    server.run(args.port, args.dir)

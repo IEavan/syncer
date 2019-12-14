@@ -2,12 +2,28 @@ import socket
 import os
 import hashlib
 import json
+import time
+
+def read_until_complete(sock, chunk_size=1024, timeout=5):
+    data = sock.recv(chunk_size)
+    start_time = time.time()
+    while True:
+        try:
+            new_status = data.decode("utf-8")
+            new_status = json.loads(new_status)
+            return new_status
+        except json.decoder.JSONDecodeError:
+            if time.time() - start_time > timeout:
+                print("Timeout")
+                break
+            else:
+                data += sock.recv(chunk_size)
 
 def get_directory_status(path):
     directory = {}
     files = [os.path.join(dp, f) for dp, dn, fn in os.walk(path) for f in fn]
     for f in files:
-        directory[f] = hash_file(f)
+        directory[f[f.find('/')+1:]] = hash_file(f)
     return directory
 
 def hash_file(path):
@@ -19,8 +35,7 @@ def hash_file(path):
 def send_status(sock, status):
     print("Sending directory status...")
     sock.sendall(json.dumps(status).encode("utf-8"))
-    response = sock.recv(1024)
-    response = json.loads(response.decode("utf-8"))
+    response = read_until_complete(sock)
     return response
 
 def send_files(sock, requested_files):

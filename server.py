@@ -32,7 +32,7 @@ def read_until_complete(sock, chunk_size=1024, timeout=5):
             else:
                 data += sock.recv(chunk_size)
 
-def run(port):
+def run(port, path):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         sock.bind((socket.gethostname(), port))
         sock.listen(8)
@@ -40,6 +40,6 @@ def run(port):
         while True:
             conn, (client_host, client_port) = sock.accept()
             print("Connection from {} on port {}".format(client_host, client_port))
-            new_status = read_until_complete(conn) # TODO support larger status updates
-            conn.sendall(json.dumps(changed_files(new_status, get_directory_status("."))).encode("utf-8"))
+            new_status = read_until_complete(conn) 
+            conn.sendall(json.dumps(changed_files(get_directory_status(path), new_status)).encode("utf-8"))
             conn.close() # TODO remove
