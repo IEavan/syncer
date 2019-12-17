@@ -2,6 +2,7 @@ import argparse
 import socket
 import client
 import server
+import os
 
 # Parse Arguments
 parser = argparse.ArgumentParser()
@@ -30,6 +31,7 @@ if args.source:
     dir_status = client.get_directory_status(args.dir)
     response = client.send_status(sock, dir_status)
     print("Received response {}".format(response))
+    client.send_files(sock, [os.path.join(args.dir, f) for f in response])
     sock.close()
 
 if args.dest:

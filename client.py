@@ -39,12 +39,16 @@ def send_status(sock, status):
     return response
 
 def send_files(sock, requested_files):
-    for f in requested_files:
-        send_file(sock, f)
-
-def send_file(sock, filename):
-    for chunk in file_chunks(filename):
-        sock.sendall(chunk)
+    sock.send(b'{')
+    for i, f in enumerate(requested_files):
+        print("Sending {}".format(f))
+        sock.send(b'"' + f[f.find('/')+1:].encode("utf-8") + b'":"')
+        for chunk in file_chunks(f):
+            sock.sendall(chunk)
+        sock.send(b'"')
+        if i != len(requested_files) - 1:
+            sock.send(b',')
+    sock.send(b'}')
 
 def file_chunks(filename, chunk_size=1024, readmode = "rb"):
     with open(filename, readmode) as f:

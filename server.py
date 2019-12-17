@@ -1,6 +1,7 @@
 import socket
 import time
 import json
+import os
 from client import get_directory_status
 
 def changed_files(old_status, new_status):
@@ -23,14 +24,26 @@ def read_until_complete(sock, chunk_size=1024, timeout=5):
     while True:
         try:
             new_status = data.decode("utf-8")
+            new_status = new_status.replace('\n', '@newline@')
             new_status = json.loads(new_status)
             return new_status
         except json.decoder.JSONDecodeError:
             if time.time() - start_time > timeout:
                 print("Timeout")
+                print(data.decode("utf-8"))
+                print(data.decode("utf-8").replace('\n', '@newline@'))
                 break
             else:
                 data += sock.recv(chunk_size)
+
+def write_files(path, files_data):
+    for filename, contents in files_data.items():
+        full_path = os.path.join(path, filename)
+        if os.path.isfile(full_path):
+            os.remove(full_path)
+        print("Writing {}".format(full_path))
+        with open(full_path, "w+") as f:
+            f.write(contents.replace('@newline@', '\n'))
 
 def run(port, path):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
@@ -42,4 +55,5 @@ def run(port, path):
             print("Connection from {} on port {}".format(client_host, client_port))
             new_status = read_until_complete(conn) 
             conn.sendall(json.dumps(changed_files(get_directory_status(path), new_status)).encode("utf-8"))
-            conn.close() # TODO remove
+            files_data = read_until_complete(conn)
+            write_files(path, files_data)
