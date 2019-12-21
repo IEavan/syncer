@@ -1,3 +1,0 @@
-1) Create argparse cmdline interface
-2) Set up socket infrastructure for sending files
-3) Implement protocol for updating and syncing files
