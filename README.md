@@ -18,7 +18,7 @@ Python 3 is required, syncer is not compatible with Python 2 due to changes to t
 
 ## Example Usage
 
-    On Server: python3 syncer.py --dest --port 45454 test\_dest
-    On Client: python3 syncer.py --source --port 45454 test\_source
+    On Server: python3 syncer.py --dest --port 45454 test_dest
+    On Client: python3 syncer.py --source --port 45454 test_source
 
 It's important that these commands are run in this order, as the client expects the server to be running.
