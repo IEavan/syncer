@@ -3,6 +3,7 @@ A tool for syncronizing two directories over a network written in python.
 
 # Usage
 Python 3 is required, syncer is not compatible with Python 2 due to changes to the socket library.  
+
     syncer.py [-h] [-s] [-d] [-a ADDR] [-p PORT] dir
 
     positional arguments:  
