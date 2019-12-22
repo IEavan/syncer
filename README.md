@@ -17,6 +17,6 @@ optional arguments:
 
 ## Example Usage
 On Server: python3 syncer.py --dest --port 45454 test\_dest  
-On Client: python3 syncer.py --dest --port 45454 test\_source  
+On Client: python3 syncer.py --source --port 45454 test\_source  
 
 It's important that these commands are run in this order, as the client expects the server to be running.
